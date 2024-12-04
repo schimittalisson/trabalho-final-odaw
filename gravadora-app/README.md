@@ -10,4 +10,6 @@ Recording studio website developed using React JS.
 * CSS3.
 
 ## Run Project
+npm install cross-env --save-dev
+npm install axios
 npm run start

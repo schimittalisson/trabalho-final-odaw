@@ -1,13 +1,15 @@
 import React from "react";
 import { NavData } from "./NavBar.js";
+import { withRouter } from 'react-router-dom';
 
-export default class NavBar extends React.Component {
-  handleUserClick = () => {
-    this.props.history.push("/Login");  // Usando this.props.history.push para navegação
-  };
-
+class NavBar extends React.Component {
   state = {
     Data: NavData,
+  };
+
+  handleLoginClick = () => {
+    // Redireciona para o path "/login"
+    this.props.history.push("/login");
   };
 
   render() {
@@ -20,16 +22,9 @@ export default class NavBar extends React.Component {
             <li>{obj.li2}</li>
             <li>{obj.li3}</li>
             <li>{obj.li4}</li>
-            <li>{obj.li5}</li>
-            <li>{obj.li6}</li>
           </ul>
           <div>
-            <i className="fas fa-search"></i>
-            <i
-              className="far fa-user"
-              onClick={this.handleUserClick}
-              style={{ cursor: "pointer" }}
-            ></i>
+            <i className="far fa-user" onClick={this.handleLoginClick}></i>
           </div>
         </nav>
       );
@@ -37,3 +32,6 @@ export default class NavBar extends React.Component {
     return <div className="nav">{response}</div>;
   }
 }
+
+// Usando withRouter para acessar o `history` no componente de classe
+export default withRouter(NavBar);

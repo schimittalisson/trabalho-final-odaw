@@ -4,33 +4,17 @@
     padding: 0;
 }
 
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f7f7f7;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-#navbar {
-    background-color: #333;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    transition: top 0.3s;
-}
-
-.login-form {
-    background-color: white;
+.sign-up-htm {
+    background-color: #23232C;
     padding: 30px;
     width: 100%;
     max-width: 400px;
+    height: 500px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
-    margin-top: 150px;
-}
+    margin: auto;
+    margin-top: 80px;
+}   
 
 .group {
     margin-bottom: 15px;
@@ -40,7 +24,7 @@ body {
     font-size: 16px;
     margin-bottom: 5px;
     display: block;
-    color: #333;
+    color: white;
 }
 
 .input {
@@ -56,12 +40,8 @@ body {
     border-color: #888;
 }
 
-.check {
-    margin-right: 10px;
-}
-
-.button {
-    background-color: #eb910a;
+button {
+    background-color: #DC2751;
     color: white;
     border: none;
     padding: 12px;
@@ -71,8 +51,8 @@ body {
     cursor: pointer;
 }
 
-.button:hover {
-    background-color: #f1a83b;
+button:hover {
+    background-color: #cc123d;
 }
 
 .hr {
@@ -84,9 +64,9 @@ body {
     text-align: center;
 }
 
-.foot-lnk a { 
+.foot-lnk a {
     text-decoration: none;
-    color: #eb910a;
+    color: #DC2751;
 }
 
 .foot-lnk a:hover {

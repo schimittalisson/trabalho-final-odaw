@@ -5,7 +5,5 @@ export const NavData=[{
     li1:"Página Inicial",
     li2:"Serviços",
     li3:"Contato",
-    li4:"Studios",
-    li5:"Pages",
-    li6:"Contact",
+    li4:"Sobre Nós",
 }]
