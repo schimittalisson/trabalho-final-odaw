@@ -36,6 +36,7 @@ class RecordingStudioApp extends React.Component {
             <Route path="/home">
               <NavBarApp />
               <HomePage />
+              <Footer />
             </Route>
             <Route path="/artists">
               <NavBarApp/>

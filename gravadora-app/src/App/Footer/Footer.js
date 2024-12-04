@@ -1,4 +1,4 @@
-import logo from "../img/logo.png";
+import logo from "../img/nossabossa-logo.png";
 
 export const FooterData =[{
     src:logo,
