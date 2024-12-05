@@ -61,6 +61,9 @@ app.post("/login", (req, res) => {
     });
 });
 
+/********************************************************************************** 
+*                                    ARTISTAS                                     *
+**********************************************************************************/
 // Rota para registro de artista
 app.post("/add-artist", (req, res) => {
   const { name, type, extraFields } = req.body;
@@ -235,6 +238,121 @@ app.delete("/delete-artist/:id", (req, res) => {
     });
   });
 });
+
+/********************************************************************************** 
+*                                   INSTRUMENTOS                                  *
+**********************************************************************************/
+// Rota para registrar um novo instrumento
+app.post("/add-instrument", (req, res) => {
+  const { name, type, brand } = req.body;
+
+  const sqlInsertInstrument = `
+    INSERT INTO Instrumento (nome, tipo, marca)
+    VALUES (?, ?, ?)
+  `;
+
+  db.query(sqlInsertInstrument, [name, type, brand], (err, result) => {
+    if (err) {
+      console.error("Erro ao adicionar instrumento:", err);
+      res.status(500).send("Erro ao adicionar instrumento.");
+      return;
+    }
+
+    res.status(200).json({ id: result.insertId, name, type, brand });
+  });
+});
+
+// Rota para listar todos os instrumentos
+app.get("/get-instruments", (req, res) => {
+  const sqlGetInstruments = "SELECT * FROM Instrumento";
+
+  db.query(sqlGetInstruments, (err, result) => {
+    if (err) {
+      console.error("Erro ao buscar instrumentos:", err);
+      res.status(500).send("Erro ao buscar instrumentos.");
+      return;
+    }
+
+    res.status(200).json(result);
+  });
+});
+
+// Rota para deletar um instrumento pelo ID
+app.delete("/delete-instrument/:id", (req, res) => {
+  const instrumentId = req.params.id;
+
+  const sqlDeleteInstrument = "DELETE FROM Instrumento WHERE id_inst = ?";
+
+  db.query(sqlDeleteInstrument, [instrumentId], (err) => {
+    if (err) {
+      console.error("Erro ao deletar instrumento:", err);
+      res.status(500).send("Erro ao deletar instrumento.");
+      return;
+    }
+
+    res.status(200).send("Instrumento deletado com sucesso!");
+  });
+});
+
+/********************************************************************************** 
+*                                      MÚSICAS                                    *
+**********************************************************************************/
+// Rota para adicionar uma música
+app.post("/add-music", (req, res) => {
+  const { title, artist } = req.body;
+
+  const sqlInsertMusic = `
+    INSERT INTO Musica (titulo, autores)
+    VALUES (?, ?)
+  `;
+
+  db.query(sqlInsertMusic, [title, artist], (err, result) => {
+    if (err) {
+      console.error("Erro ao adicionar música:", err);
+      res.status(500).send("Erro ao adicionar música.");
+      return;
+    }
+
+    res.status(200).json({ id_musica: result.insertId, title, artist });
+  });
+});
+
+// Rota para listar todas as músicas
+app.get("/get-music", (req, res) => {
+  const sqlGetMusic = "SELECT * FROM Musica";
+
+  db.query(sqlGetMusic, (err, result) => {
+    if (err) {
+      console.error("Erro ao buscar músicas:", err);
+      res.status(500).send("Erro ao buscar músicas.");
+      return;
+    }
+
+    res.status(200).json(result);
+  });
+});
+
+// Rota para deletar uma música pelo ID
+app.delete("/delete-music/:id", (req, res) => {
+  const musicId = req.params.id;
+
+  const sqlDeleteMusic = "DELETE FROM Musica WHERE id_musica = ?";
+
+  db.query(sqlDeleteMusic, [musicId], (err) => {
+    if (err) {
+      console.error("Erro ao deletar música:", err);
+      res.status(500).send("Erro ao deletar música.");
+      return;
+    }
+
+    res.status(200).send("Música deletada com sucesso!");
+  });
+});
+
+/********************************************************************************** 
+*                                   ÁLBUNS/DISCOS                                 *
+**********************************************************************************/
+  
 
 // Inicia o servidor
 app.listen(port, () => {

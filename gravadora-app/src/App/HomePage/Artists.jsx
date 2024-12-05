@@ -229,7 +229,7 @@ const Artists = () => {
           <ul>
             {artists.map((artist) => (
               <li key={artist.id}>
-                <strong>{artist.name}</strong> - {artist.type}
+                <strong>{artist.name}</strong> {artist.type}
                 {artist.type === "Solo" && (
                   <div>
                     <p>

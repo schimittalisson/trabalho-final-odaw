@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./GlobalStyles.css";
 
 const Music = () => {
@@ -6,17 +6,70 @@ const Music = () => {
   const [newMusic, setNewMusic] = useState({
     title: "",
     artist: "",
-    duration: "",
   });
+
+  // Função para buscar músicas do banco
+  const fetchMusicList = () => {
+    fetch("/get-music")
+      .then((response) => response.json())
+      .then((data) => {
+        setMusicList(data);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar músicas:", error);
+      });
+  };
+
+  // UseEffect para buscar músicas ao carregar a página
+  useEffect(() => {
+    fetchMusicList();
+  }, []);
 
   const handleAddMusic = (e) => {
     e.preventDefault();
-    setMusicList([...musicList, { ...newMusic, id: Date.now() }]);
-    setNewMusic({ title: "", artist: "", duration: "" });
+
+    // Enviar os dados para o backend
+    fetch("/add-music", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newMusic),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erro ao adicionar música");
+        }
+        return response.json();
+      })
+      .then((music) => {
+        alert("Música adicionada com sucesso!");
+        fetchMusicList(); // Atualiza a lista local
+        setNewMusic({ title: "", artist: "" }); // Reseta o formulário
+      })
+      .catch((error) => {
+        console.error(error);
+        alert("Erro ao adicionar música.");
+      });
   };
 
   const handleDeleteMusic = (id) => {
-    setMusicList(musicList.filter((music) => music.id !== id));
+    fetch(`/delete-music/${id}`, {
+      method: "DELETE",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erro ao deletar música");
+        }
+        return response.text();
+      })
+      .then((message) => {
+        alert(message);
+        fetchMusicList(); // Atualiza a lista local
+      })
+      .catch((error) => {
+        console.error("Erro ao deletar música:", error);
+      });
   };
 
   return (
@@ -47,17 +100,6 @@ const Music = () => {
             required
           />
         </label>
-        <label>
-          Duração:
-          <input
-            type="text"
-            value={newMusic.duration}
-            onChange={(e) =>
-              setNewMusic({ ...newMusic, duration: e.target.value })
-            }
-            placeholder="Exemplo: 3:45"
-          />
-        </label>
         <button type="submit">Adicionar Música</button>
       </form>
 
@@ -69,9 +111,9 @@ const Music = () => {
         ) : (
           <ul>
             {musicList.map((music) => (
-              <li key={music.id}>
-                <strong>{music.title}</strong> - {music.artist} ({music.duration})
-                <button onClick={() => handleDeleteMusic(music.id)}>
+              <li key={music.id_musica}>
+                <strong>{music.titulo}</strong> {music.autores || "Desconhecido"}
+                <button onClick={() => handleDeleteMusic(music.id_musica)}>
                   Deletar
                 </button>
               </li>
