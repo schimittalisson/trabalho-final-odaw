@@ -28,8 +28,8 @@ class NavBar extends React.Component {
   };
 
   handleAlbumClick = () => {
-    // Redireciona para o path "/album"
-    this.props.history.push("/album");
+    // Redireciona para o path "/albums"
+    this.props.history.push("/albums");
   };
 
   render() {

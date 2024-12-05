@@ -27,6 +27,10 @@ db.connect((err) => {
   }
 });
 
+/********************************************************************************** 
+*                                  LOGIN(PRODUTORES)                              *
+**********************************************************************************/
+
 // Rota para registro de usuário
 app.post("/register", (req, res) => {
   const { user, cpf, email, pass } = req.body;
@@ -352,7 +356,98 @@ app.delete("/delete-music/:id", (req, res) => {
 /********************************************************************************** 
 *                                   ÁLBUNS/DISCOS                                 *
 **********************************************************************************/
-  
+// Rota para adicionar um álbum
+app.post("/add-album", (req, res) => {
+  const { title, releaseDate, format, artistId, producerId } = req.body;
+
+  const sqlInsertAlbum = `
+    INSERT INTO Disco (titulo, data_lancamento, formato, id_artista, id_prod)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+
+  db.query(sqlInsertAlbum, [title, releaseDate, format, artistId, producerId], (err, result) => {
+    if (err) {
+      console.error("Erro ao adicionar álbum:", err);
+      res.status(500).send("Erro ao adicionar álbum.");
+      return;
+    }
+
+    res.status(200).json({ id_dis: result.insertId, title, releaseDate, format, artistId, producerId });
+  });
+});
+
+// Rota para listar todos os álbuns
+app.get("/get-albums", (req, res) => {
+  const sqlGetAlbums = "SELECT * FROM Disco";
+
+  db.query(sqlGetAlbums, (err, result) => {
+    if (err) {
+      console.error("Erro ao buscar álbuns:", err);
+      res.status(500).send("Erro ao buscar álbuns.");
+      return;
+    }
+
+    res.status(200).json(result);
+  });
+});
+
+// Rota para deletar um álbum pelo ID
+app.delete("/delete-album/:id", (req, res) => {
+  const albumId = req.params.id;
+
+  const sqlDeleteAlbum = "DELETE FROM Disco WHERE id_dis = ?";
+
+  db.query(sqlDeleteAlbum, [albumId], (err) => {
+    if (err) {
+      console.error("Erro ao deletar álbum:", err);
+      res.status(500).send("Erro ao deletar álbum.");
+      return;
+    }
+
+    res.status(200).send("Álbum deletado com sucesso!");
+  });
+});
+
+// Rota para listar todos os artistas no select box
+app.get("/get-artists-select", (req, res) => {
+  const sqlGetArtists = `
+    SELECT 
+      a.id_artista AS id, 
+      CASE 
+        WHEN a.tipo_artista = 'Solo' THEN m.nome
+        WHEN a.tipo_artista = 'Banda' THEN b.nome
+      END AS name
+    FROM artista a
+    LEFT JOIN musico m ON a.id_artista = m.id_artista AND a.tipo_artista = 'Solo'
+    LEFT JOIN banda b ON a.id_artista = b.id_artista AND a.tipo_artista = 'Banda';
+  `;
+
+  db.query(sqlGetArtists, (err, result) => {
+    if (err) {
+      console.error("Erro ao buscar artistas:", err);
+      res.status(500).send("Erro ao buscar artistas.");
+      return;
+    }
+
+    res.status(200).json(result);
+  });
+});
+
+// Rota para listar todos os produtores no select box
+app.get("/get-producers-select", (req, res) => {
+  const sqlGetProducers = "SELECT id_prod, nome FROM Produtor";
+
+  db.query(sqlGetProducers, (err, result) => {
+    if (err) {
+      console.error("Erro ao buscar produtores:", err);
+      res.status(500).send("Erro ao buscar produtores.");
+      return;
+    }
+
+    res.status(200).json(result);
+  });
+});
+
 
 // Inicia o servidor
 app.listen(port, () => {
