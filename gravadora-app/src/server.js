@@ -121,11 +121,10 @@ app.post("/add-artist", (req, res) => {
 // Rota para obter todos os artistas 
 app.get("/get-artists", (req, res) => {
   const sql = `
-    SELECT 
-  a.id_artista AS id, 
+  SELECT a.id_artista AS id, 
   CASE 
-    WHEN a.tipo_artista = 'Solo' THEN m.nome  -- Para artistas solo, pega o nome da tabela 'musico'
-    WHEN a.tipo_artista = 'Banda' THEN b.nome  -- Para bandas, pega o nome da tabela 'banda'
+    WHEN a.tipo_artista = 'Solo' THEN m.nome
+    WHEN a.tipo_artista = 'Banda' THEN b.nome
   END AS name,
   a.tipo_artista AS type,
   m.rua, 
@@ -135,8 +134,7 @@ app.get("/get-artists", (req, res) => {
   m.telefone
 FROM artista a
 LEFT JOIN musico m ON a.id_artista = m.id_artista AND a.tipo_artista = 'Solo'
-LEFT JOIN banda b ON a.id_artista = b.id_artista AND a.tipo_artista = 'Banda';
-  `;
+LEFT JOIN banda b ON a.id_artista = b.id_artista AND a.tipo_artista = 'Banda';`;
 
   db.query(sql, (err, result) => {
     if (err) {
@@ -178,12 +176,35 @@ LEFT JOIN banda b ON a.id_artista = b.id_artista AND a.tipo_artista = 'Banda';
   });
 });
 
-/*app.get("/get-artists", (req, res) => {
-  res.json([{ id: 1, name: "Artista 1", type: "Solo" }, { id: 2, name: "Artista 2", type: "Banda" }]);
-});*/
+// Rota para deletar um artista pelo ID
+app.delete("/delete-artist/:id", (req, res) => {
+  const artistId = req.params.id;
 
+  // Deleta primeiro das tabelas especializadas
+  const deleteSpecialized = `
+    DELETE FROM musico WHERE id_artista = ?;
+    DELETE FROM banda WHERE id_artista = ?;
+  `;
+  
+  db.query(deleteSpecialized, [artistId, artistId], (err) => {
+    if (err) {
+      console.error("Erro ao deletar nas tabelas especializadas:", err);
+      res.status(500).send("Erro ao deletar artista nas tabelas especializadas.");
+      return;
+    }
 
-
+    // Deleta da tabela principal
+    const deleteArtist = "DELETE FROM artista WHERE id_artista = ?";
+    db.query(deleteArtist, [artistId], (err) => {
+      if (err) {
+        console.error("Erro ao deletar artista:", err);
+        res.status(500).send("Erro ao deletar artista.");
+      } else {
+        res.status(200).send("Artista deletado com sucesso!");
+      }
+    });
+  });
+});
 
 // Inicia o servidor
 app.listen(port, () => {
