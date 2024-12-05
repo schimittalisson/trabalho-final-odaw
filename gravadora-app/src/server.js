@@ -180,28 +180,58 @@ LEFT JOIN banda b ON a.id_artista = b.id_artista AND a.tipo_artista = 'Banda';`;
 app.delete("/delete-artist/:id", (req, res) => {
   const artistId = req.params.id;
 
-  // Deleta primeiro das tabelas especializadas
-  const deleteSpecialized = `
-    DELETE FROM musico WHERE id_artista = ?;
-    DELETE FROM banda WHERE id_artista = ?;
-  `;
-  
-  db.query(deleteSpecialized, [artistId, artistId], (err) => {
+  // Inicia uma transação
+  db.beginTransaction((err) => {
     if (err) {
-      console.error("Erro ao deletar nas tabelas especializadas:", err);
-      res.status(500).send("Erro ao deletar artista nas tabelas especializadas.");
+      console.error("Erro ao iniciar transação:", err);
+      res.status(500).send("Erro ao iniciar transação.");
       return;
     }
 
-    // Deleta da tabela principal
-    const deleteArtist = "DELETE FROM artista WHERE id_artista = ?";
-    db.query(deleteArtist, [artistId], (err) => {
+    // Deleta da tabela 'musico'
+    const deleteMusico = 'DELETE FROM musico WHERE id_artista = ?';
+    db.query(deleteMusico, [artistId], (err) => {
       if (err) {
-        console.error("Erro ao deletar artista:", err);
-        res.status(500).send("Erro ao deletar artista.");
-      } else {
-        res.status(200).send("Artista deletado com sucesso!");
+        return db.rollback(() => {
+          console.error("Erro ao deletar da tabela musico:", err);
+          res.status(500).send("Erro ao deletar artista da tabela musico.");
+        });
       }
+
+      // Deleta da tabela 'banda'
+      const deleteBanda = 'DELETE FROM banda WHERE id_artista = ?';
+      db.query(deleteBanda, [artistId], (err) => {
+        if (err) {
+          return db.rollback(() => {
+            console.error("Erro ao deletar da tabela banda:", err);
+            res.status(500).send("Erro ao deletar artista da tabela banda.");
+          });
+        }
+
+        // Deleta da tabela principal 'artista'
+        const deleteArtist = 'DELETE FROM artista WHERE id_artista = ?';
+        db.query(deleteArtist, [artistId], (err) => {
+          if (err) {
+            return db.rollback(() => {
+              console.error("Erro ao deletar artista:", err);
+              res.status(500).send("Erro ao deletar artista.");
+            });
+          }
+
+          // Se todas as exclusões forem bem-sucedidas, confirma a transação
+          db.commit((err) => {
+            if (err) {
+              return db.rollback(() => {
+                console.error("Erro ao cometer transação:", err);
+                res.status(500).send("Erro ao cometer transação.");
+              });
+            }
+
+            // Responde com sucesso
+            res.status(200).send("Artista deletado com sucesso!");
+          });
+        });
+      });
     });
   });
 });
